@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+	http://www.springframework.org/schema/context  
+   http://www.springframework.org/schema/context/spring-context-4.0.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:jdbc.properties</value>
+            </list>
+        </property>
+    </bean>
+    <context:component-scan base-package="com.controller"/>
+    <context:component-scan base-package="com.dao"/>
+    <context:component-scan base-package="com.service"/>
+    <context:component-scan base-package="com.util"/>
+
+    <bean name="dataSourceOracle" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driverClassName}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <property name="initialSize" value="1"/>
+        <property name="maxActive" value="10"/>
+        <property name="minIdle" value="1"/>
+        <property name="maxWait" value="60000"/>
+        <property name="validationQuery" value="SELECT 1 FROM DUAL"/>
+        <property name="testOnBorrow" value="false"/>
+        <property name="testOnReturn" value="false"/>
+        <property name="testWhileIdle" value="true"/>
+        <property name="timeBetweenEvictionRunsMillis" value="60000"/>
+        <property name="minEvictableIdleTimeMillis" value="25200000"/>
+        <property name="removeAbandoned" value="true"/>
+        <property name="removeAbandonedTimeout" value="1800"/>
+        <property name="logAbandoned" value="true"/>
+        <property name="filters" value="mergeStat"/>
+    </bean>
+
+    <!--<bean name="dataSourceSqlServer" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">-->
+    <!--<property name="driverClassName" value="${jdbc.drverClassName_slave}"/>-->
+    <!--<property name="url" value="${jdbc.url_slave}"/>-->
+    <!--<property name="username" value="${jdbc.username_slave}"/>-->
+    <!--<property name="password" value="${jdbc.password_slave}"/>-->
+    <!--<property name="initialSize" value="1"/>-->
+    <!--<property name="maxActive" value="10"/>-->
+    <!--<property name="minIdle" value="1"/>-->
+    <!--<property name="maxWait" value="60000"/>-->
+    <!--<property name="testOnBorrow" value="false"/>-->
+    <!--<property name="testOnReturn" value="false"/>-->
+    <!--<property name="testWhileIdle" value="true"/>-->
+    <!--<property name="timeBetweenEvictionRunsMillis" value="60000"/>-->
+    <!--<property name="minEvictableIdleTimeMillis" value="25200000"/>-->
+    <!--<property name="removeAbandoned" value="true"/>-->
+    <!--<property name="removeAbandonedTimeout" value="1800"/>-->
+    <!--<property name="logAbandoned" value="true"/>-->
+    <!--<property name="filters" value="mergeStat"/>-->
+    <!--</bean>-->
+
+    <!--动态数据源-->
+    <bean id="dynamicDataSource" class="com.util.DynamicDataSource">
+        <!-- 默认使用productDataSource的数据源 -->
+        <property name="defaultTargetDataSource" ref="dataSourceOracle"/>
+        <property name="targetDataSources">
+            <map key-type="java.lang.String">
+                <entry value-ref="dataSourceOracle" key="MYSQL"/>
+                <!--<entry value-ref="dataSourceSqlServer" key="SQLSERVER"/>-->
+            </map>
+        </property>
+    </bean>
+
+    <bean id="sessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dynamicDataSource"/>
+        <property name="configLocation" value="classpath:mybatis-config.xml"/>
+        <property name="mapperLocations" value="classpath:com/mapper/*.xml"/>
+    </bean>
+
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.dao"/>
+        <property name="sqlSessionFactoryBeanName" value="sessionFactory"/>
+    </bean>
+
+    <!-- 配置事务管理器 -->
+    <bean id="baseTransactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dynamicDataSource"/>
+    </bean>
+    <context:annotation-config/>
+    <bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="jobFactory" ref="myJobFactory"/>
+        <property name="dataSource" ref="dataSourceOracle"/>
+        <property name="schedulerName" value="ClusterScheduler"/>
+        <!--必须的，QuartzScheduler 延时启动，应用启动完后 QuartzScheduler 再启动 -->
+        <property name="startupDelay" value="30"/>
+        <property name="applicationContextSchedulerContextKey" value="applicationContextKey"/>
+        <!--可选，QuartzScheduler 启动时更新己存在的Job，这样就不用每次修改targetObject后删除qrtz_job_details表对应记录了 -->
+        <property name="overwriteExistingJobs" value="true"/>
+        <!-- 设置自动启动 -->
+        <property name="autoStartup" value="true"/>
+    </bean>
+    <mvc:annotation-driven/>
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+</beans>
