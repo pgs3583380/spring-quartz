@@ -10,6 +10,11 @@ import java.util.List;
  */
 public interface ScheduleJobService {
     /**
+     * 初始化
+     */
+    void init();
+
+    /**
      * 新增
      */
     void insert(TimerJob timerJob);
@@ -46,4 +51,11 @@ public interface ScheduleJobService {
      * 获取一个任务的信息
      */
     TimerJob selectJob(String id);
+
+    /**
+     * 删除一个任务
+     *
+     * @param id the schedule job id
+     */
+    void deleteJob(String id);
 }

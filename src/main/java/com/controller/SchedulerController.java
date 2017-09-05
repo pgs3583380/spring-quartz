@@ -112,4 +112,15 @@ public class SchedulerController {
         map.put("flag", 1);
         return map;
     }
+
+    @RequestMapping(value = "deleteJob", method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String, Object> deleteJob(String id) {
+        Map<String, Object> map = new HashMap<>();
+        if (CommonUtils.isNotEmpty(id)) {
+            scheduleJobService.deleteJob(id);
+        }
+        map.put("flag", 1);
+        return map;
+    }
 }

@@ -8,6 +8,36 @@ import org.slf4j.LoggerFactory;
 public class SchedulerUtils {
     private static final Logger logger = LoggerFactory.getLogger(SchedulerUtils.class);
 
+
+    @SuppressWarnings("unchecked")
+    public static void createScheduleJob(TimerJob record, Scheduler scheduler) {
+        // 加载job类
+        String className = record.getClassName();
+        try {
+            if (CommonUtils.isEmpty(className)) {
+                logger.info("id:{}无对应类", record.getId());
+            }
+            Class aClass = Class.forName(record.getClassName());
+            if (Job.class.isAssignableFrom(aClass)) {
+                Class<? extends Job> clazz = (Class<? extends Job>) Class.forName(className);
+                String name = record.getJobName();
+                String group = record.getJobGroup();
+                //生成jobDetail
+                JobDetail jobDetail = JobBuilder.newJob(clazz).withIdentity(name, group).build();
+                //表达式调度构建器
+                CronScheduleBuilder cornSB = CronScheduleBuilder.cronSchedule(record.getCronExpression());
+                //生成触发器
+                CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity(name, group).withSchedule(cornSB).build();
+                //添加job
+                scheduler.scheduleJob(jobDetail, trigger);
+            } else {
+                logger.info("类{}未继承Job接口", record.getClassName());
+            }
+        } catch (Exception e) {
+            logger.info("类{}未找到", record.getClassName());
+        }
+    }
+
     /**
      * 获取触发器key
      */
@@ -29,7 +59,6 @@ public class SchedulerUtils {
             scheduler.resumeJob(jobKey);
         } catch (SchedulerException e) {
             logger.info("定时任务恢复失败");
-            e.printStackTrace();
         }
     }
 
@@ -60,7 +89,6 @@ public class SchedulerUtils {
      */
     public static void pauseJob(Scheduler scheduler, String jobName, String groupName) {
         JobKey jobKey = new JobKey(jobName, groupName);
-
         try {
             scheduler.pauseJob(jobKey);
         } catch (SchedulerException e) {
@@ -92,12 +120,12 @@ public class SchedulerUtils {
      * @param jobName   任务名
      * @param groupName 组织名
      */
-    public static void delete(Scheduler scheduler, String jobName, String groupName) {
+    public static void deleteJob(Scheduler scheduler, String jobName, String groupName) {
         JobKey jobKey = new JobKey(jobName, groupName);
         try {
             scheduler.deleteJob(jobKey);
         } catch (SchedulerException e) {
-            logger.info("删除任务");
+            logger.info("删除定时任务失败");
         }
     }
 

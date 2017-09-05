@@ -172,7 +172,9 @@
                 "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
                 "<button id='runOnce' class='btn btn-primary' type='button'>运行一次</button>" +
                 "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
-                "<button id='edit' class='btn btn-warning' type='button'>编辑</button>"
+                "<button id='edit' class='btn btn-warning' type='button'>编辑</button>" +
+                "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+                "<button id='del' class='btn btn-warning' type='button'>删除</button>"
             }, {
                 "targets": 0, //第一列隐藏
                 "data": "id",
@@ -275,6 +277,30 @@
                 }
             });
         });
+        $('#dataTables tbody').on('click', 'button#del', function () {
+            var data = table.row($(this).parents('tr')).data();
+            if (!confirm("确定要删除吗，删除了就找不回来了?")) {
+                return;
+            }
+            $.ajax({
+                url: "/schedule/deleteJob",
+                type: "post",
+                dataType: "json",
+                data: {
+                    "id": data.id
+                },
+                success: function (data) {
+                    var flag = data.flag;
+                    if (flag === 1) {
+                        alert("删除成功");
+                        table.ajax.reload();
+                    }
+                },
+                error: function () {
+                    alert("删除失败");
+                }
+            });
+        });
     });
 
     function update() {
@@ -322,10 +348,10 @@
                     alert("保存成功");
                     $("#editSpace").modal('hide');
                     table.ajax.reload();
-
                 }
             },
-            error: function () {
+            error: function (data) {
+                console.log(data);
                 alert("保存失败");
             }
         });

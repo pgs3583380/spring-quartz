@@ -25,4 +25,11 @@ public interface TimerJobDao {
      */
     List<TimerJob> selectByCondition();
 
+    /**
+     * 删除任务
+     *
+     * @param id schedule job id
+     */
+    void deleteByPrimaryKey(String id);
+
 }
