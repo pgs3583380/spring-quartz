@@ -2,11 +2,11 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
-       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
 	http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
 	http://www.springframework.org/schema/context  
-   http://www.springframework.org/schema/context/spring-context-4.0.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+   http://www.springframework.org/schema/context/spring-context-4.0.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
 
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
@@ -77,17 +77,32 @@
         <property name="configLocation" value="classpath:mybatis-config.xml"/>
         <property name="mapperLocations" value="classpath:com/mapper/*.xml"/>
     </bean>
-
+    <!--mybatis 自动扫描-->
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
         <property name="basePackage" value="com.dao"/>
         <property name="sqlSessionFactoryBeanName" value="sessionFactory"/>
     </bean>
-
     <!-- 配置事务管理器 -->
-    <bean id="baseTransactionManager"
+    <bean id="transactionManager"
           class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="dynamicDataSource"/>
     </bean>
+    <tx:advice id="transactionAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="delete*" propagation="REQUIRED" />
+            <tx:method name="save*" propagation="REQUIRED" />
+            <tx:method name="update*" propagation="REQUIRED" />
+            <tx:method name="find*" read-only="true" />
+            <tx:method name="get*" read-only="true" />
+            <tx:method name="select*" read-only="true" />
+        </tx:attributes>
+    </tx:advice>
+    <aop:config>
+        <!-- 第一个"*"代表所有类, 第二个"*"代表所有方法, ".."代表任意参数 -->
+        <aop:pointcut id="pointcut" expression="execution(* com.service.*.*(..))" />
+        <!-- 把事务控制在service层 -->
+        <aop:advisor pointcut-ref="pointcut" advice-ref="transactionAdvice"/>
+    </aop:config>
     <bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="jobFactory" ref="myJobFactory"/>
         <property name="dataSource" ref="dataSourceOracle"/>
