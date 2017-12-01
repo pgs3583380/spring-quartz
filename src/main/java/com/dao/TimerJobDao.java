@@ -1,12 +1,15 @@
 package com.dao;
 
 import com.model.TimerJob;
+import com.vo.TimerJobVo;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
 public interface TimerJobDao {
+    void deleteByPrimaryKey(String id);
+
     void insertSelective(TimerJob record);
 
     TimerJob selectByPrimaryKey(String id);
@@ -23,13 +26,6 @@ public interface TimerJobDao {
     /**
      * 根据条件获取任务信息
      */
-    List<TimerJob> selectByCondition();
-
-    /**
-     * 删除任务
-     *
-     * @param id schedule job id
-     */
-    void deleteByPrimaryKey(String id);
+    List<TimerJobVo> selectByCondition();
 
 }

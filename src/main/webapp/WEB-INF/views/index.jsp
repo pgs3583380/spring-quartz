@@ -16,9 +16,31 @@
     <!-- Custom Styles-->
     <link href="/assets/css/custom-styles.css" rel="stylesheet"/>
     <!-- Google Fonts-->
-    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'/>
     <link rel="stylesheet" href="/assets/js/Lightweight-Chart/cssCharts.css">
 </head>
+<style>
+    .modal.in .modal-dialog {
+        -webkit-transform: translate(0, -50%);
+        -ms-transform: translate(0, -50%);
+        -o-transform: translate(0, -50%);
+        transform: translate(0, -50%)
+    }
+
+    .modal-dialog {
+        position: absolute;
+        width: auto;
+        margin: 10px auto;
+        left: 0;
+        right: 0;
+        top: 50%
+    }
+
+    @media (min-width: 768px) {
+        .modal-dialog {
+            width: 600px
+        }
+    }
+</style>
 <body>
 <div id="wrapper">
     <jsp:include page="/common/header.jsp"/>
@@ -36,22 +58,24 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="panel panel-default">
-                        <button id='newJob' class='btn btn-warning' onclick="newJob()" type='button'>新增</button>
+                        <button id='newJob' class='btn btn-primary' onclick="newJob()" type='button'>新增任务</button>
+                        &nbsp;&nbsp;&nbsp;
+                        <button class='btn btn-success' onclick="newCron()" type='button'>生成时间表达式</button>
                     </div>
                     <div class="panel-body">
                         <div class="table-responsive">
-                            <table class="table table-striped table-bordered table-hover" id="dataTables">
+                            <table class="table table-striped table-bordered table-hover" id="dataTables"
+                                   style="width: 100%">
                                 <thead>
                                 <tr>
                                     <th>id</th>
                                     <th>任务</th>
-                                    <th>组织</th>
                                     <th>时间表达式</th>
-                                    <th>任务别名</th>
                                     <th>运行状态</th>
                                     <th>操作</th>
                                 </tr>
                                 </thead>
+                                <tbody></tbody>
                             </table>
                         </div>
                     </div>
@@ -70,20 +94,8 @@
                     <div class="modal-body">
                         <form class="form-horizontal">
                             <div class="form-group">
-                                <input type="hidden" id="infoId"/>
-                                <label class="col-xs-3 control-label">任务名</label>
-                                <div class="col-sm-4">
-                                    <input class="form-control" id="jobName" placeholder="jobName">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="jobGroup" class="col-xs-3 control-label">组织名</label>
-                                <div class="col-sm-4">
-                                    <input class="form-control" id="jobGroup" placeholder="jobGroup">
-                                </div>
-                            </div>
-                            <div class="form-group">
                                 <label for="cronExpression" class="col-xs-3 control-label">时间表达式</label>
+                                <button class='btn btn-success' onclick="newCron()" type='button'>生成时间表达式</button>
                                 <div class="col-sm-4">
                                     <input class="form-control" id="cronExpression" placeholder="cronExpression">
                                 </div>
@@ -120,6 +132,7 @@
 </div>
 <script src="/assets/js/dataTables/jquery.dataTables.js"></script>
 <script src="/assets/js/dataTables/dataTables.bootstrap.js"></script>
+<script src="/assets/js/common.js"></script>
 <script type="text/javascript">
     var table;
     $(function () {
@@ -152,11 +165,9 @@
             },
             "aoColumns": [
                 {data: 'id'},
-                {data: 'jobName'},//这里还可以用mDataProp
-                {data: 'jobGroup'},
-                {data: 'cronExpression'},
                 {data: 'jobDesc'},
-                {data: 'jobStatus'},
+                {data: 'cronExpression'},
+                {data: 'statusName'},
                 {data: ''}
             ],
             "ajax": {
@@ -170,11 +181,11 @@
                 "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
                 "<button id='resume' class='btn btn-primary' type='button'>恢复</button>" +
                 "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
-                "<button id='runOnce' class='btn btn-primary' type='button'>运行一次</button>" +
+                "<button id='runOnce' class='btn btn-success' type='button'>运行一次</button>" +
                 "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
-                "<button id='edit' class='btn btn-warning' type='button'>编辑</button>" +
+                "<button id='edit' class='btn btn-info' type='button'>编辑</button>" +
                 "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
-                "<button id='del' class='btn btn-warning' type='button'>删除</button>"
+                "<button id='del' class='btn btn-danger' type='button'>删除</button>"
             }, {
                 "targets": 0, //第一列隐藏
                 "data": "id",
@@ -184,68 +195,75 @@
         });
         $('#dataTables tbody').on('click', 'button#pause', function () {
             var data = table.row($(this).parents('tr')).data();//所选择的行的数据
-            if (!confirm("确定要暂停当前任务吗?")) {
-                return;
-            }
-            $.ajax({
-                url: "/schedule/pauseJob",
-                type: "post",
-                dataType: "json",
-                data: {
-                    "id": data.id
-                },
-                success: function (data) {
-                    if (data.flag == 1) {
-                        table.ajax.reload();
-                    }
-                },
-                error: function () {
-                    alert("暂停失败");
+            Ewin.confirm({message: "确定要暂停当前任务吗？"}).on(function (e) {
+                if (!e) {
+                    return;
                 }
+                $.ajax({
+                    url: "/schedule/pauseJob",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        "id": data.id
+                    },
+                    success: function (data) {
+                        if (data.flag == 1) {
+                            table.ajax.reload();
+                        }
+                    },
+                    error: function () {
+                        Ewin.alert({message: "暂停失败"});
+                    }
+                });
             });
         });
         $('#dataTables tbody').on('click', 'button#resume', function () {
             var data = table.row($(this).parents('tr')).data();
-            if (!confirm("确定要恢复当前任务吗?")) {
-                return;
-            }
-            $.ajax({
-                url: "/schedule/resumeJob",
-                type: "post",
-                dataType: "json",
-                data: {
-                    "id": data.id
-                },
-                success: function (data) {
-                    if (data.flag == 1) {
-                        table.ajax.reload();
-                    }
-                },
-                error: function () {
-                    alert("恢复失败");
+            Ewin.confirm({message: "确定要恢复当前任务吗？"}).on(function (e) {
+                if (!e) {
+                    return;
                 }
+                $.ajax({
+                    url: "/schedule/resumeJob",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        "id": data.id
+                    },
+                    success: function (data) {
+                        if (data.flag == 1) {
+                            Ewin.alert({message: "恢复成功"});
+                            table.ajax.reload();
+                        }
+                    },
+                    error: function () {
+                        Ewin.alert({message: "恢复失败"});
+                    }
+                });
             });
         });
         $('#dataTables tbody').on('click', 'button#runOnce', function () {
             var data = table.row($(this).parents('tr')).data();
-            if (!confirm("确定要运行一次吗?")) {
-                return;
-            }
-            $.ajax({
-                url: "/schedule/runOnce",
-                type: "post",
-                dataType: "json",
-                data: {
-                    "id": data.id
-                },
-                success: function (data) {
-                    if (data.flag == 1) {
-                        alert("运行完毕");
-                    }
-                },
-                error: function () {
-                    alert("运行失败");
+            Ewin.confirm({message: "确定要运行一次吗？"}).on(function (e) {
+                if (!e) {
+                    return;
                 }
+                $.ajax({
+                    url: "/schedule/runOnce",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        "id": data.id
+                    },
+                    success: function (data) {
+                        if (data.flag === 1) {
+                            Ewin.alert({message: "运行完毕"});
+                        }
+                    },
+                    error: function () {
+                        Ewin.alert({message: "运行失败"});
+                    }
+                });
             });
         });
         $('#dataTables tbody').on('click', 'button#edit', function () {
@@ -260,11 +278,9 @@
                 success: function (data) {
                     var flag = data.flag;
                     if (flag === 0) {
-                        alert("查询失败");
+                        Ewin.alert({message: "查询失败"});
                     } else {
                         var job = data.job;
-                        $("#jobName").val(job.jobName);
-                        $("#jobGroup").val(job.jobGroup);
                         $("#cronExpression").val(job.cronExpression);
                         $("#jobDesc").val(job.jobDesc);
                         $("#className").val(job.className);
@@ -273,61 +289,53 @@
                     }
                 },
                 error: function () {
-                    alert("查询失败");
+                    Ewin.alert({message: "查询失败"});
                 }
             });
         });
         $('#dataTables tbody').on('click', 'button#del', function () {
             var data = table.row($(this).parents('tr')).data();
-            if (!confirm("确定要删除吗，删除了就找不回来了?")) {
-                return;
-            }
-            $.ajax({
-                url: "/schedule/deleteJob",
-                type: "post",
-                dataType: "json",
-                data: {
-                    "id": data.id
-                },
-                success: function (data) {
-                    var flag = data.flag;
-                    if (flag === 1) {
-                        alert("删除成功");
-                        table.ajax.reload();
-                    }
-                },
-                error: function () {
-                    alert("删除失败");
+            Ewin.confirm({message: "确定要删除吗，删除了就找不回来了?"}).on(function (e) {
+                if (!e) {
+                    return;
                 }
+                $.ajax({
+                    url: "/schedule/deleteJob",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        "id": data.id
+                    },
+                    success: function (data) {
+                        var flag = data.flag;
+                        if (flag === 1) {
+                            Ewin.alert({message: "删除成功"});
+                            table.ajax.reload();
+                        }
+                    },
+                    error: function () {
+                        Ewin.alert({message: "删除失败"});
+                    }
+                });
             });
         });
     });
 
     function update() {
-        var jobName = $("#jobName").val();
-        var jobGroup = $("#jobGroup").val();
         var cronExpression = $("#cronExpression").val();
         var jobDesc = $("#jobDesc").val();
         var id = $("#hid_id").val();
         var className = $("#className").val();
-        if (jobName === null || jobName === "") {
-            alert("任务名不能为空");
-            return;
-        }
-        if (jobGroup === null || jobGroup === "") {
-            alert("组织名不能为空");
-            return;
-        }
         if (cronExpression === null || cronExpression === "") {
-            alert("时间表达式不能为空");
+            Ewin.alert({message: "时间表达式不能为空"});
             return;
         }
         if (jobDesc === null || jobDesc === "") {
-            alert("任务别名不能为空");
+            Ewin.alert({message: "任务别名不能为空"});
             return;
         }
         if (className === null || className === "") {
-            alert("执行类不能为空");
+            Ewin.alert({message: "执行类不能为空"});
             return;
         }
         $.ajax({
@@ -336,8 +344,6 @@
             dataType: "json",
             data: {
                 "id": id,
-                "jobName": jobName,
-                "jobGroup": jobGroup,
                 "cronExpression": cronExpression,
                 "jobDesc": jobDesc,
                 "className": className
@@ -345,21 +351,22 @@
             success: function (data) {
                 var flag = data.flag;
                 if (flag === 1) {
-                    alert("保存成功");
+                    Ewin.alert({message: "保存成功"});
                     $("#editSpace").modal('hide');
                     table.ajax.reload();
                 }
             },
             error: function (data) {
-                console.log(data);
-                alert("保存失败");
+                Ewin.alert({message: "保存失败"});
             }
         });
     }
 
+    function newCron() {
+        window.open("/cron", "_blank", "top=300,left=300,width=900,height=600,menubar=yes,scrollbars=no,toolbar=yes,status=yes");
+    }
+
     function newJob() {
-        $("#jobName").val("");
-        $("#jobGroup").val("");
         $("#cronExpression").val("");
         $("#jobDesc").val("");
         $("#hid_id").val("");

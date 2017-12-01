@@ -24,6 +24,10 @@ public class Constants {
     public static final String RUN_STATUS_PAUSE = "PAUSED";
 
     public static final String RUN_STATUS_STARTED = "RUN";
+
+    public static final String DEFAULT_METHOD_NAME = "execute";
+
+    public static final String DEFAULT_GROUP_NAME = "group";
     /**
      * 查询失败
      */

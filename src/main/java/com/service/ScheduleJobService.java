@@ -1,6 +1,7 @@
 package com.service;
 
 import com.model.TimerJob;
+import com.vo.TimerJobVo;
 
 import java.util.List;
 
@@ -10,9 +11,9 @@ import java.util.List;
  */
 public interface ScheduleJobService {
     /**
-     * 初始化
+     * 初始化定时任务
      */
-    void init();
+    void initScheduleJob();
 
     /**
      * 新增
@@ -45,7 +46,7 @@ public interface ScheduleJobService {
      */
     void resumeJob(String scheduleJobId);
 
-    List<TimerJob> selectByCondition();
+    List<TimerJobVo> selectByCondition();
 
     /**
      * 获取一个任务的信息

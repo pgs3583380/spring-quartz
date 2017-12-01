@@ -1,7 +1,7 @@
 CREATE DATABASE quartz;
 CREATE TABLE TIMERJOB(
   id VARCHAR(36) NOT NULL PRIMARY KEY,
-  job_name VARCHAR(20) NOT NULL ,
+  job_name VARCHAR(120) NOT NULL ,
   job_group VARCHAR(20) NOT NULL ,
   cron_expression VARCHAR(20) NOT NULL ,
   job_desc VARCHAR(100) NOT NULL ,

@@ -4,6 +4,8 @@ import com.model.TimerJob;
 import com.service.ScheduleJobService;
 import com.util.CommonUtils;
 import com.util.Constants;
+import com.vo.TimerJobVo;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,18 +19,14 @@ import java.util.Map;
 @Controller
 @RequestMapping("/schedule")
 public class SchedulerController {
-
-    private ScheduleJobService scheduleJobService;
-
+    private static Logger log = Logger.getLogger(SchedulerController.class);
     @Autowired
-    public void setScheduleJobService(ScheduleJobService scheduleJobService) {
-        this.scheduleJobService = scheduleJobService;
-    }
+    private ScheduleJobService scheduleJobService;
 
     @RequestMapping(value = "/selectByCondition", method = RequestMethod.GET)
     @ResponseBody
     public Map<String, Object> selectByCondition(TimerJob timerJob) {
-        List<TimerJob> timerJobs = scheduleJobService.selectByCondition();
+        List<TimerJobVo> timerJobs = scheduleJobService.selectByCondition();
         Map<String, Object> map = new HashMap<>();
         map.put("aaData", timerJobs);
         return map;
@@ -54,7 +52,6 @@ public class SchedulerController {
         map.put("flag", flag);
         return map;
     }
-
 
     /**
      * 暂停任务

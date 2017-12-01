@@ -9,4 +9,9 @@ public class IndexController {
     public String index() {
         return "index";
     }
+
+    @RequestMapping("/cron")
+    public String cron() {
+        return "cron";
+    }
 }
