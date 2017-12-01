@@ -15,7 +15,6 @@
             </list>
         </property>
     </bean>
-    <context:component-scan base-package="com.controller"/>
     <context:component-scan base-package="com.dao"/>
     <context:component-scan base-package="com.service"/>
     <context:component-scan base-package="com.util"/>
@@ -89,7 +88,6 @@
           class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="dynamicDataSource"/>
     </bean>
-    <context:annotation-config/>
     <bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="jobFactory" ref="myJobFactory"/>
         <property name="dataSource" ref="dataSourceOracle"/>
@@ -102,6 +100,5 @@
         <!-- 设置自动启动 -->
         <property name="autoStartup" value="true"/>
     </bean>
-    <mvc:annotation-driven/>
-    <aop:aspectj-autoproxy proxy-target-class="true"/>
+    <!--<aop:aspectj-autoproxy proxy-target-class="true"/>-->
 </beans>
