@@ -9,7 +9,7 @@
         <result column="CLASS_NAME" property="className" jdbcType="VARCHAR"/>
         <result column="METHOD_NAME" property="methodName" jdbcType="VARCHAR"/>
         <result column="JOB_DESC" property="jobDesc" jdbcType="VARCHAR"/>
-        <result column="JOB_STATUS" property="jobStatus" jdbcType="INTEGER"/>
+        <result column="JOB_STATUS" property="jobStatus" jdbcType="VARCHAR"/>
     </resultMap>
     <resultMap id="BaseResultMapVo" type="com.vo.TimerJobVo" extends="BaseResultMap">
         <result column="statusName" property="statusName" jdbcType="VARCHAR"/>
@@ -32,9 +32,7 @@
     <select id="selectByCondition" resultMap="BaseResultMapVo">
         SELECT
         <include refid="Base_Column_List"/>,
-        CASE JOB_STATUS WHEN 0 THEN '运行中'
-        ELSE '已暂停'
-        END AS statusName
+        JOB_STATUS AS statusName
         from TIMERJOB
         ORDER BY JOB_NAME
     </select>
@@ -93,7 +91,7 @@
                 #{jobDesc,jdbcType=VARCHAR},
             </if>
             <if test="jobStatus != null">
-                #{jobStatus,jdbcType=INTEGER},
+                #{jobStatus,jdbcType=VARCHAR},
             </if>
         </trim>
     </insert>
@@ -119,7 +117,7 @@
                 JOB_DESC = #{jobDesc,jdbcType=VARCHAR},
             </if>
             <if test="jobStatus != null">
-                JOB_STATUS = #{jobStatus,jdbcType=INTEGER},
+                JOB_STATUS = #{jobStatus,jdbcType=VARCHAR},
             </if>
         </set>
         where ID = #{id,jdbcType=VARCHAR}

@@ -27,5 +27,4 @@ public interface TimerJobDao {
      * 根据条件获取任务信息
      */
     List<TimerJobVo> selectByCondition();
-
 }
