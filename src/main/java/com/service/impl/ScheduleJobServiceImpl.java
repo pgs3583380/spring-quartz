@@ -7,7 +7,8 @@ import com.util.CommonUtils;
 import com.util.Constants;
 import com.util.SchedulerUtils;
 import com.vo.TimerJobVo;
-import org.quartz.*;
+import org.quartz.CronTrigger;
+import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -61,7 +62,7 @@ public class ScheduleJobServiceImpl implements ScheduleJobService {
     private void dealWithJobName(TimerJob timerJob) {
         if (CommonUtils.isNotEmpty(timerJob.getClassName())) {
             String[] clazz = timerJob.getClassName().split("\\.");
-            timerJob.setJobName(clazz[clazz.length - 1] + "Job" + CommonUtils.timeFormat(new Date(), Constants.simplifyTimestampPattern));
+            timerJob.setJobName(clazz[clazz.length - 1] + CommonUtils.timeFormat(new Date(), Constants.simplifyTimestampPattern));
         }
     }
 

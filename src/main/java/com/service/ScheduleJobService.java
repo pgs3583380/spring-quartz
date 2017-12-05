@@ -6,7 +6,7 @@ import com.vo.TimerJobVo;
 import java.util.List;
 
 /**
- * @author pgs
+ * @author pgs 845486067@qq.com
  * @Date 2017-09-01
  */
 public interface ScheduleJobService {

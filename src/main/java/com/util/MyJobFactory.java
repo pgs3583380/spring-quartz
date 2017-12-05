@@ -6,7 +6,9 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.scheduling.quartz.AdaptableJobFactory;
 import org.springframework.stereotype.Component;
 
-@Component
+/**
+ * 重写createJobInstance 用于注入资源
+ */
 public class MyJobFactory extends AdaptableJobFactory {
     @Autowired
     private AutowireCapableBeanFactory capableBeanFactory;
