@@ -5,4 +5,5 @@
 4. 启动项目  
 5. 添加一个定时任务（示例为TestJob）方法名为`com.job.TestJob`
 6. 修改时间表达式时注意，需要在运行状态下才能修改成功
-7. 新增操作 ![](src/main/webapp/doc/newJob.png)
+7. 新增操作 ![](src/main/webapp/doc/newJob.png)  
+8. git路径 [https://github.com/pgs3583380/spring-quartz/](https://github.com/pgs3583380/spring-quartz/)
