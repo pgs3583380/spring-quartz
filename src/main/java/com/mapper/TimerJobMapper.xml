@@ -29,6 +29,13 @@
         from TIMERJOB
         WHERE JOB_STATUS=0
     </select>
+    <select id="selectByJobKey" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM TIMERJOB
+        WHERE job_group=#{group,jdbcType=VARCHAR}
+        AND job_name=#{name,jdbcType=VARCHAR}
+    </select>
     <select id="selectByCondition" resultMap="BaseResultMapVo">
         SELECT
         <include refid="Base_Column_List"/>,

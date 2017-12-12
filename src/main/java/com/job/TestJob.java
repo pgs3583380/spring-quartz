@@ -1,10 +1,9 @@
 package com.job;
 
-import com.service.ScheduleJobService;
+import com.service.TestJobService;
 import com.util.CommonUtils;
 import com.util.MyJob;
 import org.quartz.DisallowConcurrentExecution;
-import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +14,7 @@ import javax.annotation.Resource;
 public class TestJob extends MyJob {
     private static final Logger logger = LoggerFactory.getLogger(TestJob.class);
     @Resource
-    private ScheduleJobService scheduleJobService;
+    private TestJobService testJobService;
 
     @Override
     public void before(JobExecutionContext context) {
@@ -24,8 +23,7 @@ public class TestJob extends MyJob {
 
     @Override
     public void doWork(JobExecutionContext context) {
-
-        scheduleJobService.selectByCondition();
+        testJobService.doWork();
     }
 
     @Override

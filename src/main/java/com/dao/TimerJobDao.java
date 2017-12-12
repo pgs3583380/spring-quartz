@@ -2,6 +2,7 @@ package com.dao;
 
 import com.model.TimerJob;
 import com.vo.TimerJobVo;
+import org.quartz.JobKey;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -27,4 +28,12 @@ public interface TimerJobDao {
      * 根据条件获取任务信息
      */
     List<TimerJobVo> selectByCondition();
+
+    /**
+     * 通过jobkey获取timerJob对象
+     *
+     * @param jobKey group
+     *               name
+     */
+    TimerJob selectByJobKey(JobKey jobKey);
 }

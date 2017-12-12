@@ -23,4 +23,14 @@ public class Constants {
     public static final Integer SEARCH_SUCCESS = 1;
 
     public static final String SQLSERVER = "SQLSERVER";
+    /**
+     * 执行状态-成功
+     */
+    public static final String EXECUTE_STATE_SUCCESS = "成功";
+    /**
+     * 执行状态-失败
+     */
+    public static final String EXECUTE_STATE_FAIL = "失败";
+
+    public static final String timestampPattern = "yyyy-MM-dd HH:mm:ss";
 }

@@ -6,8 +6,10 @@ import com.service.ScheduleJobService;
 import com.util.CommonUtils;
 import com.util.Constants;
 import com.util.SchedulerUtils;
+import com.util.annotation.DataSource;
 import com.vo.TimerJobVo;
 import org.quartz.CronTrigger;
+import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,6 +45,7 @@ public class ScheduleJobServiceImpl implements ScheduleJobService {
     }
 
     @Override
+    @DataSource
     public void insert(TimerJob timerJob) {
         timerJob.setId(CommonUtils.getUUID());
         timerJob.setJobStatus(Constants.RUN_STATUS_PAUSE);
@@ -112,5 +115,21 @@ public class ScheduleJobServiceImpl implements ScheduleJobService {
             SchedulerUtils.deleteJob(scheduler, timerJob.getJobName(), timerJob.getJobGroup());
             timerJobDao.deleteByPrimaryKey(id);
         }
+    }
+
+    @Override
+    public void pauseJobByJobKey(TimerJob timerJob) {
+        if (null != timerJob) {
+            timerJob.setJobStatus(Constants.RUN_STATUS_PAUSE);
+            timerJobDao.updateByPrimaryKeySelective(timerJob);
+            SchedulerUtils.pauseJob(scheduler, timerJob.getJobName(), timerJob.getJobGroup());
+        }
+    }
+
+    @Override
+    public TimerJob selectByJobKey(JobKey jobKey) {
+        if (null == jobKey)
+            return null;
+        return timerJobDao.selectByJobKey(jobKey);
     }
 }

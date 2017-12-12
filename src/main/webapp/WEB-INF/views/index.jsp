@@ -39,7 +39,6 @@
         .modal-dialog {
             width: 600px
         }
-    }
 </style>
 <body>
 <div id="wrapper">
@@ -121,6 +120,36 @@
                 </div>
             </div>
         </div>
+        <div class="modal fade" id="log" tabindex="-1" role="dialog" aria-labelledby="logModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title" id="logModalLabel">运行情况</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover" id="logTables"
+                                   style="width: 100%">
+                                <thead>
+                                <tr>
+                                    <th>执行开始时间</th>
+                                    <th>执行结束时间</th>
+                                    <th>执行状态</th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <input type="hidden" id="hid_id">
         <div class="row">
             <div class="col-md-12">
@@ -135,9 +164,11 @@
 <script src="/assets/js/common.js"></script>
 <script type="text/javascript">
     var table;
+    var wageSummaryTable;
     $(function () {
         $("#capitalflow").addClass("active-menu");
         table = $('#dataTables').DataTable({
+            "ordering": false,
             language: {
                 "sProcessing": "处理中...",
                 "sLengthMenu": "每页 _MENU_ 项",
@@ -157,10 +188,6 @@
                     "sNext": "下页",
                     "sLast": "末页",
                     "sJump": "跳转"
-                },
-                "oAria": {
-                    "sSortAscending": ": 以升序排列此列",
-                    "sSortDescending": ": 以降序排列此列"
                 }
             },
             "aoColumns": [
@@ -185,7 +212,9 @@
                 "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
                 "<button id='edit' class='btn btn-info' type='button'>编辑</button>" +
                 "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
-                "<button id='del' class='btn btn-danger' type='button'>删除</button>"
+                "<button id='del' class='btn btn-danger' type='button'>删除</button>" +
+                "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+                "<button id='showLog' class='btn btn-info' type='button'>日志</button>"
             }, {
                 "targets": 0, //第一列隐藏
                 "data": "id",
@@ -318,6 +347,43 @@
                     }
                 });
             });
+        });
+        $('#dataTables tbody').on('click', 'button#showLog', function () {
+            var data = table.row($(this).parents('tr')).data();
+            wageSummaryTable = $('#logTables').DataTable({
+                "ordering": false,
+                "destroy": true,
+                language: {
+                    "sProcessing": "处理中...",
+                    "sLengthMenu": "每页 _MENU_ 项",
+                    "sZeroRecords": "没有匹配结果",
+                    "sInfo": "当前显示第 _START_ 至 _END_ 项，共 _TOTAL_ 项。",
+                    "sInfoEmpty": "当前显示第 0 至 0 项，共 0 项",
+                    "sInfoFiltered": "(由 _MAX_ 项结果过滤)",
+                    "sInfoPostFix": "",
+                    "sSearch": "搜索:",
+                    "sUrl": "",
+                    "sEmptyTable": "表中数据为空",
+                    "sLoadingRecords": "载入中...",
+                    "sInfoThousands": ",",
+                    "oPaginate": {
+                        "sFirst": "首页",
+                        "sPrevious": "上页",
+                        "sNext": "下页",
+                        "sLast": "末页",
+                        "sJump": "跳转"
+                    }
+                },
+                "aoColumns": [
+                    {data: 'executionStartTime'},
+                    {data: 'executionEndTime'},
+                    {data: 'executionState'}
+                ],
+                "ajax": {
+                    "url": '/schedule/showLog?id=' + data.id
+                }
+            });
+            $("#log").modal('show');
         });
     });
 

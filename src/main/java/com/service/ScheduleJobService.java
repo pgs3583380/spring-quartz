@@ -2,6 +2,7 @@ package com.service;
 
 import com.model.TimerJob;
 import com.vo.TimerJobVo;
+import org.quartz.JobKey;
 
 import java.util.List;
 
@@ -59,4 +60,14 @@ public interface ScheduleJobService {
      * @param id the schedule job id
      */
     void deleteJob(String id);
+
+    /**
+     * 通过jobKey查询并暂停任务
+     */
+    void pauseJobByJobKey(TimerJob timerJob);
+
+    /**
+     * 通过jobKey查询任务
+     */
+    TimerJob selectByJobKey(JobKey jobKey);
 }

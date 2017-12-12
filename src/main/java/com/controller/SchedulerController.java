@@ -1,6 +1,8 @@
 package com.controller;
 
+import com.model.JobLog;
 import com.model.TimerJob;
+import com.service.JobLogService;
 import com.service.ScheduleJobService;
 import com.util.CommonUtils;
 import com.util.Constants;
@@ -8,10 +10,12 @@ import com.vo.TimerJobVo;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,8 +24,10 @@ import java.util.Map;
 @RequestMapping("/schedule")
 public class SchedulerController {
     private static Logger log = Logger.getLogger(SchedulerController.class);
-    @Autowired
+    @Resource
     private ScheduleJobService scheduleJobService;
+    @Resource
+    private JobLogService jobLogService;
 
     @RequestMapping(value = "/selectByCondition", method = RequestMethod.GET)
     @ResponseBody
@@ -118,6 +124,15 @@ public class SchedulerController {
             scheduleJobService.deleteJob(id);
         }
         map.put("flag", 1);
+        return map;
+    }
+
+    @RequestMapping(value = "/showLog", method = RequestMethod.GET)
+    @ResponseBody
+    public Map<String, Object> showLog(String id) {
+        List<JobLog> jobLogs = jobLogService.selectByJobId(id);
+        Map<String, Object> map = new HashMap<>();
+        map.put("aaData", jobLogs);
         return map;
     }
 }
